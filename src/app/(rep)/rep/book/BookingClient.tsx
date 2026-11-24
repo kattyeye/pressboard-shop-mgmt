@@ -16,6 +16,7 @@ const CELL: Record<BookingKind, string> = {
   limited: "bg-soft text-ink",
   standard: "bg-white text-ink border border-line",
   closed: "bg-ground text-muted border border-line [background-image:repeating-linear-gradient(135deg,transparent_0_5px,var(--hover)_5px_10px)]",
+  past: "bg-transparent text-muted opacity-60",
 };
 const WORD: Record<BookingKind, string> = {
   full: "Full",
@@ -24,6 +25,7 @@ const WORD: Record<BookingKind, string> = {
   limited: "Limited",
   standard: "Open",
   closed: "Closed",
+  past: "Past",
 };
 
 export function BookingClient({
@@ -133,6 +135,7 @@ export function BookingClient({
               <button
                 key={d}
                 type="button"
+                disabled={a.kind === "past"}
                 onClick={() => {
                   setSelected(d);
                   setResult(null);

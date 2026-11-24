@@ -86,10 +86,12 @@ export const dayNum = (d: ISODate) => String(toDate(d).getUTCDate());
 /** "November 2026" */
 export const monthTitle = (d: ISODate) => fmt(d, { month: "long", year: "numeric" });
 
+/** "Tue, Nov 24 at 3:04 AM" in the shop's time zone */
 export function timeIn(iso: string, timeZone: string): string {
-  return new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric", minute: "2-digit" }).format(
-    new Date(iso),
-  );
+  const d = new Date(iso);
+  const day = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short", month: "short", day: "numeric" }).format(d);
+  const time = new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric", minute: "2-digit" }).format(d);
+  return `${day} at ${time}`;
 }
 
 export function monthBounds(month: string): { first: ISODate; last: ISODate } {

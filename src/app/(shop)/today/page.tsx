@@ -128,7 +128,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             <NeedRow
               key={h.id}
               title={`${h.contact?.customer?.short_name ?? "A dealer"} is holding ${shortDay(h.in_hands_date)}`}
-              detail={`${h.pieces} pieces${h.is_rush ? ", rush" : ""} for ${h.contact?.full_name ?? "a rep"}. The hold ends at ${timeIn(h.expires_at, org.time_zone)} unless the PO and art arrive.`}
+              detail={`${h.pieces} pieces${h.is_rush ? ", rush" : ""} for ${h.contact?.full_name ?? "a rep"}. The hold ends ${timeIn(h.expires_at, org.time_zone)} unless the PO and art arrive.`}
               action={<ActionLink href={`/calendar?day=${h.in_hands_date}&month=${h.in_hands_date.slice(0, 7)}`}>See day</ActionLink>}
             />
           ))}

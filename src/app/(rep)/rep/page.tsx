@@ -61,7 +61,7 @@ export default async function RepHome({ searchParams }: { searchParams: Promise<
         ))}
         {holds.map((h) => (
           <div key={h.id} className="flex flex-col gap-2 rounded-2xl border border-line bg-white p-3.5">
-            <p className="text-sm font-bold">Your hold ends at {timeIn(h.expires_at, org.time_zone)}</p>
+            <p className="text-sm font-bold">Your hold ends {timeIn(h.expires_at, org.time_zone)}</p>
             <p className="leading-snug font-bold">
               {shortDay(h.in_hands_date)}, {h.pieces} pieces{h.is_rush ? ", rush" : ""}
             </p>

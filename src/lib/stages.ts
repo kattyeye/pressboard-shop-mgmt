@@ -91,7 +91,7 @@ export const REP_STATUS: Record<Stage, string> = {
 /** Rep progress: 6 bars (received, proof, scheduled, production, packed, shipped). */
 export const REP_PROGRESS: Record<Stage, number> = {
   review: 1,
-  proof_sent: 1,
+  proof_sent: 2,
   approved: 2,
   scheduled: 3,
   on_press: 4,

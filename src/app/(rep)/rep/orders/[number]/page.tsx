@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { GarmentChip } from "@/components/GarmentChip";
 import { requireRep } from "@/lib/dal";
 import { shortDay } from "@/lib/dates";
+import { sortedSizes } from "@/lib/sizes";
 import { REP_PROGRESS, REP_STATUS } from "@/lib/stages";
 import { ORDER_SELECT, type OrderEvent, type OrderItem, type OrderRow } from "@/lib/types";
 import { approveProof, requestChanges } from "../../../actions";
@@ -94,7 +95,7 @@ export default async function RepOrderPage({ params }: { params: Promise<{ numbe
             </p>
             {it.decoration && <p className="text-sm text-muted">{it.decoration}</p>}
             <ol aria-label={`Sizes for ${it.description}`} className="flex flex-wrap gap-1">
-              {Object.entries(it.sizes).map(([size, qty]) => (
+              {sortedSizes(it.sizes).map(([size, qty]) => (
                 <li key={size} className="flex min-w-12 flex-col items-center rounded-lg bg-hover px-1.5 py-1.5">
                   <span className="text-xs font-bold">{size}</span>
                   <span className="text-lg leading-none font-extrabold">{qty}</span>

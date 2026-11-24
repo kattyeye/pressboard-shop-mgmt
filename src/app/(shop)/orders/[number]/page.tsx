@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { GarmentChip } from "@/components/GarmentChip";
 import { requireShop } from "@/lib/dal";
 import { shortDay } from "@/lib/dates";
+import { sortedSizes } from "@/lib/sizes";
 import { NEXT_ACTION, STAGES, STAGE_HINT, STAGE_LABEL } from "@/lib/stages";
 import { ORDER_SELECT, type OrderEvent, type OrderItem, type OrderRow } from "@/lib/types";
 import { moveStage } from "../../actions";
@@ -121,7 +122,7 @@ export default async function OrderPage({ params }: { params: Promise<{ number: 
                   <p className="text-[28px] leading-none font-extrabold">{it.quantity}</p>
                 </div>
                 <ol aria-label={`Sizes for ${it.description}`} className="flex flex-wrap gap-1.5">
-                  {Object.entries(it.sizes).map(([size, qty]) => (
+                  {sortedSizes(it.sizes).map(([size, qty]) => (
                     <li key={size} className="flex min-w-16 flex-col items-center rounded-[10px] bg-hover px-2 pt-2 pb-2.5">
                       <span className="text-[13px] font-bold">{size}</span>
                       <span className="text-2xl leading-none font-extrabold">{qty}</span>

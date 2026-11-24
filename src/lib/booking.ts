@@ -8,7 +8,7 @@ import {
 import type { DayStatus, ShopRules } from "./types";
 
 // The shop's rules, applied the same way for every rep.
-export type BookingKind = "standard" | "limited" | "rush" | "full" | "closed" | "too_soon";
+export type BookingKind = "standard" | "limited" | "rush" | "full" | "closed" | "too_soon" | "past";
 
 export type BookingAnswer = {
   date: ISODate;
@@ -29,7 +29,8 @@ export type BookingInput = {
 
 export function evaluate(date: ISODate, input: BookingInput): BookingAnswer {
   const { today, pieces, rules, statusOf, rushUsedInWeek } = input;
-  if (date <= today || !isWeekday(date)) return { date, kind: "closed" };
+  if (date <= today) return { date, kind: "past" };
+  if (!isWeekday(date)) return { date, kind: "closed" };
   const status = statusOf(date);
   if (status === "closed") return { date, kind: "closed" };
   if (status === "full") return { date, kind: "full" };
