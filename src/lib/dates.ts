@@ -107,3 +107,20 @@ export function shiftMonth(month: string, n: number): string {
   d.setUTCMonth(d.getUTCMonth() + n);
   return fromDate(d).slice(0, 7);
 }
+
+/** The shop-local calendar day a timestamp falls on. */
+export function dayIn(iso: string, timeZone: string): ISODate {
+  return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(
+    new Date(iso),
+  );
+}
+
+/** Calendar days from a to b (b later is positive). */
+export function daysBetween(a: ISODate, b: ISODate): number {
+  return Math.round((toDate(b).getTime() - toDate(a).getTime()) / 86_400_000);
+}
+
+/** "Nov 16", with the year added when it isn't the current one. */
+export function monthDay(d: ISODate, today: ISODate): string {
+  return fmt(d, d.slice(0, 4) === today.slice(0, 4) ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" });
+}

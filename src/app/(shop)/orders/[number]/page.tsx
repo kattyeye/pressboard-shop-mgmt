@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GarmentChip } from "@/components/GarmentChip";
 import { requireShop } from "@/lib/dal";
-import { shortDay } from "@/lib/dates";
+import { dayIn, monthDay, shortDay, todayIn } from "@/lib/dates";
 import { sortedSizes } from "@/lib/sizes";
 import { NEXT_ACTION, STAGES, STAGE_HINT, STAGE_LABEL } from "@/lib/stages";
 import { ORDER_SELECT, type OrderEvent, type OrderItem, type OrderRow } from "@/lib/types";
@@ -31,7 +31,7 @@ export default async function OrderPage({ params }: { params: Promise<{ number: 
   return (
     <div className="flex flex-col gap-6">
       <p className="text-sm font-semibold">
-        <Link href="/today#board" className="text-brand-text underline">Orders</Link>
+        <Link href="/orders" className="text-brand-text underline">Orders</Link>
         <span className="text-muted"> / {order.number}</span>
       </p>
       <header className="flex flex-wrap items-end gap-x-6 gap-y-3">
@@ -45,6 +45,11 @@ export default async function OrderPage({ params }: { params: Promise<{ number: 
             {order.customer?.name}, {order.contact?.full_name}.{order.dealer_po ? ` PO ${order.dealer_po}.` : ""}
             {order.in_hands_date ? ` In hand ${shortDay(order.in_hands_date)}.` : ""}
             {order.is_rush ? " Rush." : ""}
+            {order.paid_at
+              ? ` Paid ${monthDay(dayIn(order.paid_at, org.time_zone), todayIn(org.time_zone))}.`
+              : order.invoiced_at
+                ? ` Invoiced ${monthDay(dayIn(order.invoiced_at, org.time_zone), todayIn(org.time_zone))}.`
+                : ""}
           </p>
         </div>
       </header>

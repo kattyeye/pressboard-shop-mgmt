@@ -55,11 +55,17 @@ Migrations live in `supabase/migrations` and run in order:
    memberships, orders, items, history, capacity days, slot holds
 2. `row_level_security`: who can see and change what
 3. `rep_proof_actions`: lets a rep approve or comment on their own proof
+4. `order_billing_dates`: when each order shipped, was invoiced and was paid,
+   stamped automatically whenever its stage changes
 
 ### Demo data
 
-- `supabase/seed/demo_data.sql` creates the Go For Effect demo shop. Its dates
-  are relative to the day it runs.
+Run these in order. Dates are relative to the day they run.
+
+- `supabase/seed/demo_data.sql` creates the Go For Effect demo shop and the
+  orders in the shop now.
+- `supabase/seed/demo_history.sql` adds three months of invoiced and paid
+  orders, so the Orders page has history.
 - `supabase/seed/demo_users.template.sql` creates the demo sign-ins. Replace
   `__DEMO_PASSWORD__` before running it, and never commit the real password.
 

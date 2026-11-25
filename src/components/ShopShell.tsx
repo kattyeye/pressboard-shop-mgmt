@@ -47,6 +47,9 @@ export function ShopShell({
               <NavLink href="/today" icon="home">Today</NavLink>
             </li>
             <li className="flex-[1_1_170px]">
+              <NavLink href="/orders" icon="orders">Orders</NavLink>
+            </li>
+            <li className="flex-[1_1_170px]">
               <NavLink href="/calendar" icon="calendar">Calendar</NavLink>
             </li>
           </ul>

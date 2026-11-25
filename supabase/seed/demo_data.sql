@@ -51,10 +51,8 @@ begin
     (org, 1040, ft, c_jordan, 'Mauldin Football',         'FT-88051',  'finishing',  false, private.add_working_days(t, 2),  private.add_working_days(t, -1), '#1A1A1A', '#C8102E', 'Black garment, scarlet print',     72,  now() - interval '9 days'),
     (org, 1039, jl, c_alexis, 'Capital City Rugby',       'JL-5491',   'finishing',  false, private.add_working_days(t, 2),  private.add_working_days(t, -1), '#1F2A44', '#FFFFFF', 'Navy garment, white print',        28,  now() - interval '9 days'),
     (org, 1037, mw, c_cody,   'Owasso Baseball',          'MSG-3350',  'packed',     false, private.add_working_days(t, 1),  private.add_working_days(t, -2), '#C8102E', '#1F2A44', 'Scarlet garment, navy print',      54,  now() - interval '11 days'),
-    (org, 1036, mw, c_cody,   'Broken Arrow Soccer',      'MSG-3322',  'shipped',    false, private.add_working_days(t, 0),  private.add_working_days(t, -3), '#00843D', '#FFFFFF', 'Kelly green garment, white print', 36,  now() - interval '12 days'),
-    (org, 1031, bk, c_marcus, 'Eastside Eagles Baseball', 'BSG-20702', 'paid',       false, t - 19,  t - 22,  '#1F2A44', '#FFFFFF', 'Navy garment, white print',        44, now() - interval '30 days'),
-    (org, 1024, bk, c_marcus, 'Mandarin Lacrosse (fall)', 'BSG-20611', 'paid',       false, t - 38,  t - 41,  '#00843D', '#FFFFFF', 'Kelly green garment, white print', 58, now() - interval '50 days'),
-    (org, 912,  bk, c_marcus, 'Eastside Eagles Softball (spring)', 'BSG-19870', 'paid', false, t - 250, t - 253, '#C8102E', '#FFFFFF', 'Scarlet garment, white print', 50, now() - interval '260 days');
+    (org, 1036, mw, c_cody,   'Broken Arrow Soccer',      'MSG-3322',  'shipped',    false, private.add_working_days(t, 0),  private.add_working_days(t, -3), '#00843D', '#FFFFFF', 'Kelly green garment, white print', 36,  now() - interval '12 days');
+  -- Invoiced and paid orders live in demo_history.sql.
 
   insert into public.order_items (organization_id, order_id, position, description, decoration, sizes, quantity)
   select org, o.id, 0, x.description, x.decoration, x.sizes::jsonb, x.quantity
@@ -70,10 +68,7 @@ begin
     (1040, 'Football practice tee, black', 'Front: Mauldin M, scarlet vinyl. Back: numbers', '{"M":12,"L":24,"XL":20,"2XL":12,"3XL":4}', 72),
     (1039, 'Rugby tee, navy', 'Front: Capital City crest, white DTF', '{"M":8,"L":10,"XL":8,"2XL":2}', 28),
     (1037, 'Baseball jersey, scarlet', 'Front: Owasso, navy vinyl. Back: numbers', '{"YL":6,"S":10,"M":14,"L":14,"XL":8,"2XL":2}', 54),
-    (1036, 'Soccer jersey, kelly green', 'Front: Broken Arrow, white vinyl. Back: numbers', '{"YM":8,"YL":10,"S":10,"M":8}', 36),
-    (1031, 'Baseball tee, navy', 'Front: Eagles, white vinyl', '{"S":8,"M":12,"L":12,"XL":8,"2XL":4}', 44),
-    (1024, 'Shooter shirt, kelly green', 'Front: Mandarin, white DTF', '{"S":10,"M":16,"L":18,"XL":10,"2XL":4}', 58),
-    (912,  'Performance tee, scarlet', 'Front: Eagles script, white vinyl', '{"YM":2,"YL":4,"S":8,"M":12,"L":12,"XL":8,"2XL":4}', 50)
+    (1036, 'Soccer jersey, kelly green', 'Front: Broken Arrow, white vinyl. Back: numbers', '{"YM":8,"YL":10,"S":10,"M":8}', 36)
   ) as x(number, description, decoration, sizes, quantity)
   join public.orders o on o.organization_id = org and o.number = x.number;
 
@@ -101,9 +96,7 @@ begin
     ('on_press',  'Production started', interval '2 days'),
     ('finishing', 'Moved to finishing', interval '2 days 4 hours'),
     ('packed',    'Packed: boxes weighed and photographed', interval '3 days'),
-    ('shipped',   'Shipped by UPS Ground', interval '3 days 2 hours'),
-    ('invoiced',  'Invoice sent', interval '3 days 3 hours'),
-    ('paid',      'Payment received', interval '10 days')
+    ('shipped',   'Shipped by UPS Ground', interval '3 days 2 hours')
   ) as e(stage, message, after) on o.stage >= e.stage
   where o.organization_id = org;
 

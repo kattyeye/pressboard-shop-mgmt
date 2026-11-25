@@ -44,6 +44,9 @@ export type OrderRow = {
   color_label: string | null;
   total_pieces: number;
   notes: string | null;
+  shipped_at: string | null;
+  invoiced_at: string | null;
+  paid_at: string | null;
   customer: { id: string; name: string; short_name: string } | null;
   contact: { id: string; full_name: string } | null;
 };
@@ -77,4 +80,4 @@ export type SlotHold = {
 };
 
 export const ORDER_SELECT =
-  "id, number, end_client, dealer_po, stage, is_rush, in_hands_date, press_date, garment_hex, ink_hex, color_label, total_pieces, notes, customer:customers(id, name, short_name), contact:contacts(id, full_name)";
+  "id, number, end_client, dealer_po, stage, is_rush, in_hands_date, press_date, garment_hex, ink_hex, color_label, total_pieces, notes, shipped_at, invoiced_at, paid_at, customer:customers(id, name, short_name), contact:contacts(id, full_name)";

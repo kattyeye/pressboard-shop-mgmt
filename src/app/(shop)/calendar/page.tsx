@@ -96,7 +96,7 @@ export default async function CalendarPage({
 
       <div className="flex flex-wrap items-start gap-5">
         <section aria-label={`${monthTitle(first)}, weekdays`} className="min-w-0 flex-[999_1_600px] rounded-[18px] border border-line bg-white p-4">
-          <div className="overflow-x-auto">
+          <div className="-m-1.5 overflow-x-auto p-1.5">
             <div className="min-w-[620px]">
               <div aria-hidden="true" className="mb-2 grid grid-cols-5 gap-2 text-[15px] font-bold text-muted">
                 {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((d) => (
@@ -117,7 +117,7 @@ export default async function CalendarPage({
                       aria-label={`${longDay(d)}, ${WORD[st]}`}
                       className={`flex min-h-[110px] flex-col gap-0.5 rounded-xl border px-2.5 pt-2.5 pb-3 ${LOOK[st]} ${
                         d < today || !inMonth ? "opacity-55" : ""
-                      } ${d === selected ? "ring-[3px] ring-brand ring-offset-2" : ""}`}
+                      } ${d === selected ? "ring-[3px] ring-brand ring-inset" : ""}`}
                     >
                       <span className="flex items-baseline justify-between">
                         <span className="text-[30px] leading-none font-extrabold tracking-tight">{dayNum(d)}</span>

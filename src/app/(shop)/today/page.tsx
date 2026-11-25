@@ -1,7 +1,20 @@
 import Link from "next/link";
+import { FilterLink } from "@/components/FilterLink";
 import { GarmentChip } from "@/components/GarmentChip";
 import { requireShop } from "@/lib/dal";
-import { dayNum, dow, longDay, shortDay, timeIn, todayIn, workingDaysFrom, type ISODate } from "@/lib/dates";
+import {
+  dayIn,
+  dayNum,
+  daysBetween,
+  dow,
+  longDay,
+  monthDay,
+  shortDay,
+  timeIn,
+  todayIn,
+  workingDaysFrom,
+  type ISODate,
+} from "@/lib/dates";
 import { ACTIVE_STAGES, BOARD_COLUMNS } from "@/lib/stages";
 import { ORDER_SELECT, type CapacityDay, type DayStatus, type OrderRow, type SlotHold } from "@/lib/types";
 import { moveStage } from "../actions";
@@ -21,7 +34,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const horizon = workingDaysFrom(today, 60);
   const strip = horizon.slice(0, 10);
 
-  const [ordersRes, capRes, holdsRes, customersRes] = await Promise.all([
+  const [ordersRes, capRes, holdsRes, customersRes, unpaidRes] = await Promise.all([
     supabase.from("orders").select(ORDER_SELECT).in("stage", ACTIVE_STAGES).order("number", { ascending: false }),
     supabase.from("capacity_days").select("day, status, note").gte("day", horizon[0]).lte("day", horizon.at(-1)!),
     supabase
@@ -31,6 +44,11 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       .gt("expires_at", new Date().toISOString())
       .order("expires_at"),
     supabase.from("customers").select("id, short_name").order("name"),
+    supabase
+      .from("orders")
+      .select("id, number, end_client, invoiced_at, customer:customers(short_name)")
+      .eq("stage", "invoiced")
+      .order("invoiced_at"),
   ]);
 
   const orders = (ordersRes.data ?? []) as unknown as OrderRow[];
@@ -38,6 +56,10 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const statusOf = (d: ISODate): DayStatus => capacity.get(d) ?? "open";
   const holds = (holdsRes.data ?? []) as unknown as SlotHold[];
   const customers = (customersRes.data ?? []) as { id: string; short_name: string }[];
+  const unpaid = (unpaidRes.data ?? []) as unknown as Pick<OrderRow, "id" | "number" | "end_client" | "invoiced_at" | "customer">[];
+  const oldestUnpaid = unpaid[0];
+  const oldestSent = oldestUnpaid?.invoiced_at ? dayIn(oldestUnpaid.invoiced_at, org.time_zone) : null;
+  const oldestWait = oldestSent ? daysBetween(oldestSent, today) : 0;
 
   const nextOpen = horizon.find((d) => d > today && statusOf(d) === "open");
   const review = orders.filter((o) => o.stage === "review");
@@ -65,7 +87,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             Open calendar
           </Link>
         </div>
-        <div className="overflow-x-auto p-1">
+        <div className="-m-0.5 overflow-x-auto p-1.5">
           <ol className="grid min-w-[860px] grid-cols-10 gap-2">
             {strip.map((d) => {
               const st = statusOf(d);
@@ -124,6 +146,16 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
               }
             />
           ))}
+          {oldestUnpaid && (
+            <NeedRow
+              flag={oldestWait > 30}
+              title={`${unpaid.length} ${unpaid.length === 1 ? "invoice is" : "invoices are"} waiting on payment`}
+              detail={`Oldest: ${oldestUnpaid.number} ${oldestUnpaid.end_client} (${oldestUnpaid.customer?.short_name ?? "dealer"})${
+                oldestSent ? `, sent ${monthDay(oldestSent, today)}, ${oldestWait} ${oldestWait === 1 ? "day" : "days"} ago` : ""
+              }.`}
+              action={<ActionLink href="/orders?view=invoiced">See invoices</ActionLink>}
+            />
+          )}
           {holds.map((h) => (
             <NeedRow
               key={h.id}
@@ -132,7 +164,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
               action={<ActionLink href={`/calendar?day=${h.in_hands_date}&month=${h.in_hands_date.slice(0, 7)}`}>See day</ActionLink>}
             />
           ))}
-          {review.length + proofs.length + toInvoice.length + holds.length === 0 && (
+          {review.length + proofs.length + toInvoice.length + unpaid.length + holds.length === 0 && (
             <li className="border-t border-line py-4 text-muted">You’re all caught up.</li>
           )}
         </ul>
@@ -140,7 +172,12 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
 
       <section id="board" aria-labelledby="orders-h" className="flex flex-col gap-3.5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="orders-h" className="text-[22px] font-bold">Orders</h2>
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <h2 id="orders-h" className="text-[22px] font-bold">Orders</h2>
+            <Link href="/orders" className="text-[15px] font-semibold text-brand-text underline">
+              Invoiced and paid orders
+            </Link>
+          </div>
           <nav aria-label="Filter by dealer" className="flex flex-wrap gap-1.5">
             <FilterLink href="/today#board" active={!dealer}>All dealers</FilterLink>
             {customers.map((c) => (
@@ -226,20 +263,6 @@ function ActionLink({ href, primary = false, children }: { href: string; primary
       href={href}
       className={`inline-flex min-h-11 items-center rounded-[10px] px-4 text-[15px] font-bold ${
         primary ? "bg-brand text-on-brand hover:brightness-95" : "border border-ink text-ink"
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function FilterLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      aria-current={active ? "true" : undefined}
-      className={`inline-flex min-h-10 items-center rounded-full border px-3.5 text-sm font-bold ${
-        active ? "border-ink bg-ink text-white" : "border-line bg-white text-ink"
       }`}
     >
       {children}
