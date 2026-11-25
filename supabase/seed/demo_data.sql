@@ -126,6 +126,16 @@ begin
     exit when not found;
   end loop;
 
-  insert into public.slot_holds (organization_id, contact_id, in_hands_date, pieces, decoration, is_rush, expires_at)
-  values (org, c_marcus, private.add_working_days(t, 9), 48, 'Vinyl', false, now() + interval '6 hours');
+  -- In-hand dates skip closed days too (no deliveries on holidays): step forward
+  loop
+    update public.orders o set in_hands_date = private.add_working_days(o.in_hands_date, 1)
+    from public.capacity_days c
+    where o.organization_id = org and c.organization_id = org
+      and c.day = o.in_hands_date and c.status = 'closed';
+    exit when not found;
+  end loop;
+
+  -- Placed a few hours ago, so most of the 48-hour hold is still left to show
+  insert into public.slot_holds (organization_id, contact_id, in_hands_date, pieces, decoration, is_rush, expires_at, created_at)
+  values (org, c_marcus, private.add_working_days(t, 9), 48, 'Vinyl', false, now() + interval '44 hours', now() - interval '4 hours');
 end $$;
